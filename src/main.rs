@@ -9,15 +9,10 @@ use glfw::{Action, Context, Key, OpenGlProfileHint, WindowEvent, WindowHint, Win
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
-const VERTICES: [f32; 12] = [
-    0.5, 0.5, 0.0, // Top right
-    0.5, -0.5, 0.0, // Bottom right
-    -0.5, -0.5, 0.0, // Bottom left
-    -0.5, 0.5, 0.0, // Top left
-];
-const INDICES: [i32; 6] = [
-    0, 1, 3, // First Triangle
-    1, 2, 3, // Second Triangle
+const VERTICES: [f32; 9] = [
+    -0.5, -0.5, 0.0, // 1
+    0.5, -0.5, 0.0, // 2
+    0.0, 0.5, 0.0, // 3
 ];
 
 const VERTEX: &str = include_str!("vertex.glsl");
@@ -115,14 +110,12 @@ fn main() {
         gl::DeleteShader(fragment_shader);
 
         // Configure buffers and array
-        let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
+        let (mut vbo, mut vao) = (0, 0);
 
         // Generate array
         gl::GenVertexArrays(1, &mut vao);
         // Generate buffer
         gl::GenBuffers(1, &mut vbo);
-        // Generate ebo buffer
-        gl::GenBuffers(1, &mut ebo);
 
         // Bind array first, so that buffers can be in the array
         gl::BindVertexArray(vao);
@@ -133,15 +126,6 @@ fn main() {
             (VERTICES.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
             &VERTICES[0] as *const f32 as *const c_void,
             STATIC_DRAW,
-        );
-
-        // Setup EBO indices
-        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-        gl::BufferData(
-            gl::ELEMENT_ARRAY_BUFFER,
-            (INDICES.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-            &INDICES[0] as *const i32 as *const c_void,
-            gl::STATIC_DRAW,
         );
 
         gl::VertexAttribPointer(
@@ -169,7 +153,7 @@ fn main() {
             // Tell OpenGL to use the linked program
             gl::UseProgram(shader_program);
             gl::BindVertexArray(vao);
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, ptr::null());
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
 
         // Swap buffers and poll IO events
